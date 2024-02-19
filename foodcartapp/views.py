@@ -62,7 +62,7 @@ def product_list_api(request):
 @api_view(['POST'])
 def register_order(request):
     data = request.data
-
+    
     try:
         order_products = data.get('products', [])
         if not isinstance(order_products, list):
@@ -77,9 +77,10 @@ def register_order(request):
         )
 
         products_str = data.get('products', '')
+        print(products_str)
         if products_str:
-            products_list = json.loads(products_str)
-            for product in products_list:
+            products = order_products
+            for product in products:
                 product_id = product.get('product')
                 quantity = product.get('quantity')
                 if product_id:
