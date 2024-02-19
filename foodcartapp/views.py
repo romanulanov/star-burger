@@ -61,20 +61,35 @@ def product_list_api(request):
 
 @api_view(['POST'])
 def register_order(request):
-    order = json.loads(request.body.decode())
-    print(order)
-    
-    morder = Order.objects.create(firstname=order['firstname'],
-                         lastname=order['lastname'],
-                         phonenumber=order['phonenumber'],
-                         address=order['address'],
-                         
-                         )
-    for product in order['products']:
-        product_id = product['product']
-        quantity = product['quantity']
-        if product_id:
-            product = Product.objects.get(pk=product_id)
-            OrderProduct.objects.create(order=morder, product=product, quantity=quantity)
+    data = request.data
 
-    return Response({'message': 'Order created successfully'}, status=201)
+    try:
+        order_products = data.get('products', [])
+        if not isinstance(order_products, list):
+            return Response({'error': 'Products must be provided as a list'}, status=400)
+        if not order_products:
+            return Response({'error': 'No products provided'}, status=400)
+        morder = Order.objects.create(
+            firstname=data['firstname'],
+            lastname=data['lastname'],
+            phonenumber=data['phonenumber'],
+            address=data['address'],
+        )
+
+        products_str = data.get('products', '')
+        if products_str:
+            products_list = json.loads(products_str)
+            for product in products_list:
+                product_id = product.get('product')
+                quantity = product.get('quantity')
+                if product_id:
+                    product_obj = Product.objects.get(pk=product_id)
+                    OrderProduct.objects.create(order=morder, product=product_obj, quantity=quantity)
+
+        return Response({'message': 'Order created successfully'}, status=201)
+    except json.JSONDecodeError:
+        return Response({'error': 'products key not presented or not list'}, status=400)
+    except KeyError:
+        return Response({'error': 'Incomplete data in request'}, status=400)
+    except Exception as e:
+        return Response({'error': str(e)}, status=500)
