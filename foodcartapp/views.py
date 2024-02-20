@@ -1,13 +1,10 @@
-import json
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from snippets.models import Snippet
-from snippets.views import snippet_list
-from snippets.serializers import SnippetSerializer
 
-from .models import Product, Order, OrderItem
-from rest_framework.serializers import ModelSerializer, ValidationError
+
+from .models import Product
+from .serializers import OrderSerializer
 
 from django.http import JsonResponse
 from django.templatetags.static import static
@@ -64,25 +61,7 @@ def product_list_api(request):
         'indent': 4,
     })
 
-class OrderItemSerializer(ModelSerializer):
-    class Meta:
-        model = OrderItem
-        fields = ['product', 'quantity']
 
-
-class OrderSerializer(ModelSerializer):
-    products = OrderItemSerializer(many=True, allow_empty=False, write_only=True) 
-    class Meta:
-        model = Order
-        fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address', 'products']
-
-    def create(self, validated_data):
-        products_data = validated_data.pop('products')  
-        order = Order.objects.create(**validated_data)  
-        for product_data in products_data:
-            OrderItem.objects.create(order=order, **product_data)
-
-        return order
 
   
 @api_view(['POST'])

@@ -19,7 +19,6 @@ from django.contrib import admin
 from django.urls import path, include
 from django.shortcuts import render
 from foodcartapp.views import register_order
-from snippets import views
 from . import settings
 
 urlpatterns = [
@@ -29,8 +28,6 @@ urlpatterns = [
     path('api/order/', register_order, name='register_order'),
     path('manager/', include('restaurateur.urls')),
     path('api-auth/', include('rest_framework.urls')),
-    path('snippets/', views.snippet_list),
-    path('snippets/<int:pk>/', views.snippet_detail),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
