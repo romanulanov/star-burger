@@ -4,7 +4,8 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from phonenumber_field.phonenumber import PhoneNumber
 from phonenumber_field.validators import validate_international_phonenumber
-from .models import Product, Order, OrderProduct
+from .models import Product, Order, Products
+from rest_framework.serializers import ModelSerializer, ValidationError
 
 from django.http import JsonResponse
 from django.templatetags.static import static
@@ -61,73 +62,36 @@ def product_list_api(request):
         'indent': 4,
     })
 
+class ProductsSerializer(ModelSerializer):
+    class Meta:
+        model = Products
+        fields = ['product', 'quantity']
+
+class OrderSerializer(ModelSerializer):
+    products = ProductsSerializer(many=True) 
+    class Meta:
+        model = Order
+        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+
+
 @api_view(['POST'])
 def register_order(request):
-    data = request.data
+    print(request.data)
+    serializer = OrderSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
     
-    try:
-        order_products = data.get('products', [])
-        
-        if not isinstance(order_products, list):
-            return Response({'error': 'Products must be provided as a list'}, status=400)
-        if not order_products:
-            return Response({'error': 'No products provided'}, status=400)
-        
-        required_keys = ['firstname', 'lastname', 'phonenumber', 'address']
-        missing_fields = []
-        invalid_fields = []
-        for key in required_keys:
-            if key not in data or data[key] == "":
-                missing_fields.append(key)
-            elif not isinstance(data[key], str):
-                invalid_fields.append(key)
+    order_info = serializer.validated_data
+    order = Order.objects.create(
+        firstname=order_info['firstname'],
+        lastname=order_info['lastname'],
+        phonenumber=order_info['phonenumber'],
+        address=order_info['address'],
+    )
+    
+    order_products = order_info.get('products', [])
+    if not order_products:  
+            raise ValidationError("List of products cannot be empty")
+    for product in order_products:
+        Products.objects.create(order=order,  product=product['product'], quantity=product['quantity'])
 
-        if missing_fields or invalid_fields:
-            error_message = ''
-            if missing_fields:
-                missing_fields_str = ', '.join(missing_fields)
-                error_message += f'Missing fields: {missing_fields_str}. '
-            if invalid_fields:
-                invalid_fields_str = ', '.join(invalid_fields)
-                error_message += f'Invalid fields: {invalid_fields_str} must be provided as a string.'
-            return Response({'error': error_message}, status=400)
-
-        for product in data['products']:
-            product_id = product.get('product')
-            if not Product.objects.filter(id=product_id).exists():
-                return Response(f'Invalid product id: {product_id}')
-
-        firstname=data['firstname']
-        lastname=data['lastname']
-        phonenumber=data['phonenumber']
-        address=data['address']
-
-        try:
-            phone_number = PhoneNumber.from_string(phonenumber)
-            validate_international_phonenumber(phone_number)
-        except Exception as e:
-            return Response({'error': f'Invalid phone number: {phonenumber}'}, status=400)
-
-        order = Order.objects.create(
-            firstname=firstname,
-            lastname=lastname,
-            phonenumber=phonenumber,
-            address=address,
-        )
-        
-
-        products_str = data.get('products', '')
-        if products_str:
-            products = order_products
-            for product in products:
-                product_id = product.get('product')
-                quantity = product.get('quantity')
-                if product_id:
-                    product_obj = Product.objects.get(pk=product_id)
-                    OrderProduct.objects.create(order=order, product=product_obj, quantity=quantity)
-
-        return Response({'message': 'Order created successfully'}, status=201)
-    except json.JSONDecodeError:
-        return Response({'error': 'Products key not presented or not list'}, status=400)
-    except Exception as e:
-        return Response({'error': str(e)}, status=500)
+    return Response({'message': 'Order created successfully'}, status=201)

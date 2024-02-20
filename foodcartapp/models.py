@@ -148,7 +148,7 @@ class Order(models.Model):
     products = models.ManyToManyField(
         Product,
         verbose_name='продукты',
-        through='OrderProduct',
+        through='Products',
         related_name='orders'
     )
 
@@ -160,8 +160,8 @@ class Order(models.Model):
         return f'{self.firstname} {self.lastname}, {self.address}'
 
 
-class OrderProduct(models.Model):
-    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+class Products(models.Model):
+    order = models.ForeignKey(Order, related_name='order_products', on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
 
