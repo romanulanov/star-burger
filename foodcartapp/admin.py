@@ -7,7 +7,7 @@ from .models import Product
 from .models import ProductCategory
 from .models import Restaurant
 from .models import RestaurantMenuItem
-from .models import Order, Products
+from .models import Order, OrderItem
 
 
 class RestaurantMenuItemInline(admin.TabularInline):
@@ -105,8 +105,8 @@ class ProductAdmin(admin.ModelAdmin):
     get_image_list_preview.short_description = 'превью'
 
 
-class ProductInline(admin.TabularInline):
-    model = Products
+class OrderItemInline(admin.TabularInline):
+    model = OrderItem
     extra = 1
 
 
@@ -119,5 +119,5 @@ class ProductCategoryAdmin(admin.ModelAdmin):
 class OrderAdmin(admin.ModelAdmin):
     list_display = ('firstname', 'lastname', 'address')
     inlines = [
-        ProductInline,
+        OrderItemInline,
     ]

@@ -1,10 +1,12 @@
 import json
-
+from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from phonenumber_field.phonenumber import PhoneNumber
-from phonenumber_field.validators import validate_international_phonenumber
-from .models import Product, Order, Products
+from snippets.models import Snippet
+from snippets.views import snippet_list
+from snippets.serializers import SnippetSerializer
+
+from .models import Product, Order, OrderItem
 from rest_framework.serializers import ModelSerializer, ValidationError
 
 from django.http import JsonResponse
@@ -62,36 +64,30 @@ def product_list_api(request):
         'indent': 4,
     })
 
-class ProductsSerializer(ModelSerializer):
+class OrderItemSerializer(ModelSerializer):
     class Meta:
-        model = Products
+        model = OrderItem
         fields = ['product', 'quantity']
 
+
 class OrderSerializer(ModelSerializer):
-    products = ProductsSerializer(many=True) 
+    products = OrderItemSerializer(many=True, allow_empty=False, write_only=True) 
     class Meta:
         model = Order
-        fields = ['firstname', 'lastname', 'phonenumber', 'address', 'products']
+        fields = ['id', 'firstname', 'lastname', 'phonenumber', 'address', 'products']
 
+    def create(self, validated_data):
+        products_data = validated_data.pop('products')  
+        order = Order.objects.create(**validated_data)  
+        for product_data in products_data:
+            OrderItem.objects.create(order=order, **product_data)
 
+        return order
+
+  
 @api_view(['POST'])
 def register_order(request):
-    print(request.data)
     serializer = OrderSerializer(data=request.data)
     serializer.is_valid(raise_exception=True)
-    
-    order_info = serializer.validated_data
-    order = Order.objects.create(
-        firstname=order_info['firstname'],
-        lastname=order_info['lastname'],
-        phonenumber=order_info['phonenumber'],
-        address=order_info['address'],
-    )
-    
-    order_products = order_info.get('products', [])
-    if not order_products:  
-            raise ValidationError("List of products cannot be empty")
-    for product in order_products:
-        Products.objects.create(order=order,  product=product['product'], quantity=product['quantity'])
-
-    return Response({'message': 'Order created successfully'}, status=201)
+    order = serializer.save()
+    return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
