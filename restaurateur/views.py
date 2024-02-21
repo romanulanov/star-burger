@@ -3,12 +3,14 @@ from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
+from django.db.models import Sum, F
 
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
+from django.db.models import ExpressionWrapper, DecimalField
 
 
-from foodcartapp.models import Order, Product, Restaurant
+from foodcartapp.models import Order, Product, Restaurant, OrderItem
 
 
 class Login(forms.Form):
@@ -92,10 +94,8 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    order_items = Order.objects.prefetch_related('products')
-
+    orders = Order.objects.annotate(total_price=Sum(F('items__product__price') * F('items__quantity')))
+    
     return render(request, template_name='order_items.html', context={
-        
-        'order_items': order_items
-        # TODO заглушка для нереализованного функционала
+        'order_items': orders
     })

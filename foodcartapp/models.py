@@ -1,4 +1,5 @@
 from django.db import models
+from django.db.models import Sum, F
 from django.core.validators import MinValueValidator
 from phonenumber_field.modelfields import PhoneNumberField
 
@@ -161,10 +162,9 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    order = models.ForeignKey(Order, related_name='items', verbose_name='заказ',on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, related_name='items', verbose_name='продукт', on_delete=models.CASCADE)
     quantity = models.IntegerField(default=1)
-
     class Meta:
         verbose_name = 'продукт в заказе'
         verbose_name_plural = 'продукты в заказе'
