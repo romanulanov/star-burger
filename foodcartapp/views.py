@@ -5,7 +5,7 @@ from rest_framework.response import Response
 
 from .models import Product
 from .serializers import OrderSerializer
-
+from django.db import transaction
 from django.http import JsonResponse
 from django.templatetags.static import static
 
@@ -62,6 +62,7 @@ def product_list_api(request):
     })
 
 
+@transaction.atomic
 @api_view(['POST'])
 def register_order(request):
     serializer = OrderSerializer(data=request.data)
