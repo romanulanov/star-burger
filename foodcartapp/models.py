@@ -1,10 +1,7 @@
 from django.db import models
-from django.db.models import Sum, F
 from django.core.validators import MinValueValidator
-from django.forms import ModelForm
-from django.http import HttpResponseRedirect
-from django.urls import reverse
 from phonenumber_field.modelfields import PhoneNumberField
+from django.utils import timezone
 
 
 class Restaurant(models.Model):
@@ -133,12 +130,22 @@ class Order(models.Model):
     ('PR', 'Обработанный'),
     ('UN', 'Необработанный'),
     ]
+    PAYMENT_CHOICES = [
+    ('CASH', 'Наличными'),
+    ('CARD', 'Электронно'),
+    ]
 
     status = models.CharField(
         verbose_name='Статус заказа',
         max_length=2,
         choices=STATUS_CHOICES ,
         default="UN",
+    )
+    payment_method = models.CharField(
+        verbose_name='Способ оплаты',
+        max_length=4,
+        choices=PAYMENT_CHOICES ,
+        default="CASH",
     )
     firstname = models.CharField(
         verbose_name='Имя',
@@ -171,6 +178,23 @@ class Order(models.Model):
         max_length=200,
         blank=True,
     )
+    registrated_at = models.DateTimeField(
+        verbose_name='дата создания',
+        default=timezone.now)
+    
+
+    called_at = models.DateTimeField(
+        verbose_name='дата обзванивания',
+        default=timezone.now,
+        blank=True,
+        null=True)
+    
+
+    delivered_at = models.DateTimeField(
+        verbose_name='дата доставки',
+        blank=True,
+        null=True
+        )
 
     class Meta:
         verbose_name = 'заказ'
