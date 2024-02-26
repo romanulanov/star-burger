@@ -135,6 +135,7 @@ class Order(models.Model):
     ]
 
     status = models.CharField(
+        verbose_name='Статус заказа',
         max_length=2,
         choices=STATUS_CHOICES ,
         default="UN",
@@ -164,6 +165,11 @@ class Order(models.Model):
         verbose_name='продукты',
         through='OrderItem',
         related_name='orders'
+    )
+    comment = models.TextField(
+        verbose_name='комментарий к заказу',
+        max_length=200,
+        blank=True,
     )
 
     class Meta:
