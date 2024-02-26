@@ -1,6 +1,9 @@
 from django.db import models
 from django.db.models import Sum, F
 from django.core.validators import MinValueValidator
+from django.forms import ModelForm
+from django.http import HttpResponseRedirect
+from django.urls import reverse
 from phonenumber_field.modelfields import PhoneNumberField
 
 
@@ -171,6 +174,8 @@ class OrderItem(models.Model):
         default=1,
         validators=[MinValueValidator(0)]
     )
+    
+
     class Meta:
         verbose_name = 'продукт в заказе'
         verbose_name_plural = 'продукты в заказе'
@@ -178,4 +183,7 @@ class OrderItem(models.Model):
     def __str__(self):
         return f'{self.product.name} в заказе {self.order.id}'
     
+
     
+    
+

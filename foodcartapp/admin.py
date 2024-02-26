@@ -1,7 +1,11 @@
 from django.contrib import admin
+from django.forms import ModelForm
+from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
+from django.utils.http import url_has_allowed_host_and_scheme
+from restaurateur.views import view_orders
 
 from .models import Product
 from .models import ProductCategory
@@ -123,6 +127,7 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [
         OrderItemInline,
     ]
+    form = ModelForm
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
         for obj in formset.deleted_objects:
@@ -132,3 +137,9 @@ class OrderAdmin(admin.ModelAdmin):
             instance.save()
         formset.save_m2m()
     
+    def response_post_save_change(self, request, obj):
+        res = super().response_post_save_change(request, obj)
+        if "next" in request.GET and url_has_allowed_host_and_scheme(request.GET['next'], None):
+            return HttpResponseRedirect(request.GET["next"])
+        else:
+            return res
