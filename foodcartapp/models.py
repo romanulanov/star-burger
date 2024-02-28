@@ -1,8 +1,8 @@
 from django.db import models
+from django.db.models.query import QuerySet
 from django.core.validators import MinValueValidator
-from phonenumber_field.modelfields import PhoneNumberField
 from django.utils import timezone
-
+from phonenumber_field.modelfields import PhoneNumberField
 
 class Restaurant(models.Model):
     name = models.CharField(
@@ -95,7 +95,27 @@ class Product(models.Model):
         return self.name
 
 
+
+class RestaurantMenuItemQuerySet(models.QuerySet):
+    def get_restaurants_by_order(self, order_id):
+        order = Order.objects.select_related('restaurant').get(pk=order_id)
+        if order.restaurant:
+            return {order.restaurant}
+
+        product_ids = order.items.all().values_list('product_id', flat=True)
+        restaurants = Restaurant.objects.filter(
+            menu_items__product_id__in=product_ids,
+            menu_items__availability=True
+        ).distinct()
+
+        restaurants = restaurants.filter(menu_items__product_id__in=product_ids)
+
+        return set(restaurants)
+
+
 class RestaurantMenuItem(models.Model):
+    available = RestaurantMenuItemQuerySet.as_manager()
+    objects = models.Manager()
     restaurant = models.ForeignKey(
         Restaurant,
         related_name='menu_items',
@@ -134,7 +154,13 @@ class Order(models.Model):
     ('CASH', 'Наличными'),
     ('CARD', 'Электронно'),
     ]
-
+    restaurant = models.ForeignKey(
+        Restaurant,
+        related_name='orders',
+        verbose_name='ресторан',
+        on_delete=models.CASCADE,
+        null=True, blank=True
+    )
     status = models.CharField(
         verbose_name='Статус заказа',
         max_length=2,
