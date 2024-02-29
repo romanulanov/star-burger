@@ -4,13 +4,30 @@ from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Sum, F
-from django.db.models import Prefetch
+
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-from django.db.models import ExpressionWrapper, DecimalField
-
-
+import requests
+from geopy import distance
 from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
+from star_burger.settings import YANDEX_TOKEN
+
+def fetch_coordinates(apikey, address):
+    base_url = "https://geocode-maps.yandex.ru/1.x"
+    response = requests.get(base_url, params={
+        "geocode": address,
+        "apikey": apikey,
+        "format": "json",
+    })
+    response.raise_for_status()
+    found_places = response.json()['response']['GeoObjectCollection']['featureMember']
+
+    if not found_places:
+        return None
+
+    most_relevant = found_places[0]
+    lon, lat = most_relevant['GeoObject']['Point']['pos'].split(" ")
+    return lon, lat
 
 
 class Login(forms.Form):
@@ -94,10 +111,20 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
+    
+    
+    
     orders = Order.objects.annotate(total_price=Sum(F('items__product__price') * F('items__quantity')))
     for order in orders:
         order.restaurants = RestaurantMenuItem.available.get_restaurants_by_order(order.id)
-    
+        for restaurant in order.restaurants:
+            restaurant_coords = fetch_coordinates(YANDEX_TOKEN, restaurant.address)
+            order_coords = fetch_coordinates(YANDEX_TOKEN, order.address)
+            if order_coords:
+                restaurant.distance = round(distance.distance(restaurant_coords[::-1], order_coords[::-1]).km, 2)
+            else:
+                restaurant.distance = "Ошибка определения координат"
+            
     return render(request, template_name='order_items.html', context={
         'order_items': orders
     })
