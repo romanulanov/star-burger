@@ -17,7 +17,7 @@ from place.models import Place
 
 
 def fetch_coordinates(apikey, address):
-    place = Place.objects.filter(address_place=address).first()
+    place = Place.objects.filter(address=address).first()
     if place and place.lon and place.lat:
         return place.lon, place.lat
     else:
