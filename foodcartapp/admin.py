@@ -4,8 +4,6 @@ from django.http import HttpResponseRedirect
 from django.shortcuts import reverse
 from django.templatetags.static import static
 from django.utils.html import format_html
-from django.utils.http import url_has_allowed_host_and_scheme
-from restaurateur.views import view_orders
 
 from .models import Product
 from .models import ProductCategory
@@ -39,6 +37,7 @@ class RestaurantAdmin(admin.ModelAdmin):
 class ProductInline(admin.TabularInline):
     model = Product
 
+
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = [
@@ -54,8 +53,6 @@ class ProductAdmin(admin.ModelAdmin):
         'category',
     ]
     search_fields = [
-        # FIXME SQLite can not convert letter case for cyrillic words properly, so search will be buggy.
-        # Migration to PostgreSQL is necessary
         'name',
         'category__name',
     ]
@@ -98,22 +95,26 @@ class ProductAdmin(admin.ModelAdmin):
     def get_image_preview(self, obj):
         if not obj.image:
             return 'выберите картинку'
-        return format_html('<img src="{url}" style="max-height: 200px;"/>', url=obj.image.url)
+        return format_html(
+            '<img src="{url}" style="max-height: 200px;"/>',
+            url=obj.image.url
+            )
     get_image_preview.short_description = 'превью'
 
     def get_image_list_preview(self, obj):
         if not obj.image or not obj.id:
             return 'нет картинки'
         edit_url = reverse('admin:foodcartapp_product_change', args=(obj.id,))
-        return format_html('<a href="{edit_url}"><img src="{src}" style="max-height: 50px;"/></a>', edit_url=edit_url, src=obj.image.url)
+        return format_html(
+            '<a href="{edit_url}"><img src="{src}" style="max-height: 50px;"/></a>',
+            edit_url=edit_url,
+            src=obj.image.url)
     get_image_list_preview.short_description = 'превью'
 
 
 class OrderItemInline(admin.TabularInline):
     model = OrderItem
     extra = 1
-
-    
 
 
 @admin.register(ProductCategory)
@@ -128,6 +129,7 @@ class OrderAdmin(admin.ModelAdmin):
         OrderItemInline,
     ]
     form = ModelForm
+
     def save_formset(self, request, form, formset, change):
         instances = formset.save(commit=False)
         for obj in formset.deleted_objects:
@@ -136,10 +138,10 @@ class OrderAdmin(admin.ModelAdmin):
             instance.price = instance.product.price
             instance.save()
         formset.save_m2m()
-    
+
     def response_post_save_change(self, request, obj):
         res = super().response_post_save_change(request, obj)
-        
+
         if "next" in request.GET:
             return HttpResponseRedirect(request.GET["next"])
         else:

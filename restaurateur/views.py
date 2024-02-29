@@ -15,6 +15,7 @@ from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
 from star_burger.settings import YANDEX_KEY
 from place.models import Place
 
+
 def fetch_coordinates(apikey, address):
     place = Place.objects.filter(address_place=address).first()
     if place and place.lon and place.lat:
@@ -118,9 +119,6 @@ def view_restaurants(request):
 
 @user_passes_test(is_manager, login_url='restaurateur:login')
 def view_orders(request):
-    
-    
-    
     orders = Order.objects.annotate(total_price=Sum(F('items__product__price') * F('items__quantity')))
     for order in orders:
         order.restaurants = RestaurantMenuItem.available.get_restaurants_by_order(order.id)
@@ -131,9 +129,7 @@ def view_orders(request):
                 restaurant.distance = round(distance.distance(restaurant_coords[::-1], order_coords[::-1]).km, 2)
             else:
                 restaurant.distance = "Ошибка определения координат"
-            
+
     return render(request, template_name='order_items.html', context={
         'order_items': orders
     })
-
-
