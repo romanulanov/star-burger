@@ -1,16 +1,18 @@
+import requests
+
+from geopy import distance
+
 from django import forms
 from django.shortcuts import redirect, render
 from django.views import View
 from django.urls import reverse_lazy
 from django.contrib.auth.decorators import user_passes_test
 from django.db.models import Sum, F
-
 from django.contrib.auth import authenticate, login
 from django.contrib.auth import views as auth_views
-import requests
-from geopy import distance
+
 from foodcartapp.models import Order, Product, Restaurant, RestaurantMenuItem
-from star_burger.settings import YANDEX_TOKEN
+from star_burger.settings import YANDEX_KEY
 
 def fetch_coordinates(apikey, address):
     base_url = "https://geocode-maps.yandex.ru/1.x"
@@ -118,8 +120,8 @@ def view_orders(request):
     for order in orders:
         order.restaurants = RestaurantMenuItem.available.get_restaurants_by_order(order.id)
         for restaurant in order.restaurants:
-            restaurant_coords = fetch_coordinates(YANDEX_TOKEN, restaurant.address)
-            order_coords = fetch_coordinates(YANDEX_TOKEN, order.address)
+            restaurant_coords = fetch_coordinates(YANDEX_KEY, restaurant.address)
+            order_coords = fetch_coordinates(YANDEX_KEY, order.address)
             if order_coords:
                 restaurant.distance = round(distance.distance(restaurant_coords[::-1], order_coords[::-1]).km, 2)
             else:
