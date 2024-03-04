@@ -8,7 +8,6 @@ class Place(models.Model):
         max_length=50,
         db_index=True
     )
-
     lat = models.DecimalField(
         verbose_name='Широта',
         max_digits=10,
@@ -19,7 +18,6 @@ class Place(models.Model):
         max_digits=10,
         decimal_places=2
         )
-
     request_date = models.DateField(
         verbose_name='Дата запроса',
         default=timezone.now

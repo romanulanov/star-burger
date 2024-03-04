@@ -1,8 +1,8 @@
 from django.db import models
-from django.db.models.query import QuerySet
 from django.core.validators import MinValueValidator
 from django.utils import timezone
 from phonenumber_field.modelfields import PhoneNumberField
+
 
 class Restaurant(models.Model):
     name = models.CharField(
@@ -84,7 +84,6 @@ class Product(models.Model):
         max_length=200,
         blank=True,
     )
-
     objects = ProductQuerySet.as_manager()
 
     class Meta:
@@ -93,7 +92,6 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
-
 
 
 class RestaurantMenuItemQuerySet(models.QuerySet):
@@ -107,9 +105,7 @@ class RestaurantMenuItemQuerySet(models.QuerySet):
             menu_items__product_id__in=product_ids,
             menu_items__availability=True
         ).distinct()
-
         restaurants = restaurants.filter(menu_items__product_id__in=product_ids)
-
         return restaurants.distinct()
 
 
@@ -147,13 +143,13 @@ class RestaurantMenuItem(models.Model):
 
 class Order(models.Model):
     STATUS_CHOICES = [
-    ('PR', 'Обработанный'),
-    ('UN', 'Необработанный'),
+        ('PR', 'Обработанный'),
+        ('UN', 'Необработанный'),
     ]
     PAYMENT_CHOICES = [
-    ('CASH', 'Наличными'),
-    ('CARD', 'Электронно'),
-    ('NS', 'Не указано'),
+        ('CASH', 'Наличными'),
+        ('CARD', 'Электронно'),
+        ('NS', 'Не указано'),
     ]
     restaurant = models.ForeignKey(
         Restaurant,
@@ -165,13 +161,13 @@ class Order(models.Model):
     status = models.CharField(
         verbose_name='Статус заказа',
         max_length=2,
-        choices=STATUS_CHOICES ,
+        choices=STATUS_CHOICES,
         default="UN",
     )
     payment_method = models.CharField(
         verbose_name='Способ оплаты',
         max_length=4,
-        choices=PAYMENT_CHOICES ,
+        choices=PAYMENT_CHOICES,
         default="NS",
     )
     firstname = models.CharField(
@@ -204,15 +200,11 @@ class Order(models.Model):
     registered_at = models.DateTimeField(
         verbose_name='дата создания',
         default=timezone.now)
-    
-
     called_at = models.DateTimeField(
         verbose_name='дата обзванивания',
         default=timezone.now,
         blank=True,
         null=True)
-    
-
     delivered_at = models.DateTimeField(
         verbose_name='дата доставки',
         blank=True,
@@ -228,15 +220,22 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order, related_name='items', verbose_name='заказ',on_delete=models.CASCADE)
-    product = models.ForeignKey(Product, related_name='items', verbose_name='продукт', on_delete=models.CASCADE)
+    order = models.ForeignKey(Order,
+                              related_name='items',
+                              verbose_name='заказ',
+                              on_delete=models.CASCADE
+                              )
+    product = models.ForeignKey(Product,
+                                related_name='items',
+                                verbose_name='продукт',
+                                on_delete=models.CASCADE
+                                )
     quantity = models.IntegerField(default=1)
     price = models.DecimalField(
         max_digits=8,
         decimal_places=2,
         validators=[MinValueValidator(0)]
     )
-    
 
     class Meta:
         verbose_name = 'продукт в заказе'
@@ -244,8 +243,3 @@ class OrderItem(models.Model):
 
     def __str__(self):
         return f'{self.product.name} в заказе {self.order.id}'
-    
-
-    
-    
-
