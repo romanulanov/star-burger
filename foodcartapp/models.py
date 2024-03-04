@@ -177,22 +177,18 @@ class Order(models.Model):
     firstname = models.CharField(
         verbose_name='Имя',
         max_length=50,
-        null=False,
     )
     lastname = models.CharField(
         verbose_name='Фамилия',
         max_length=50,
-        null=False
     )
     address = models.CharField(
         verbose_name='Адрес доставки',
         max_length=50,
         db_index=True,
-        null=False,
     )
     phonenumber = PhoneNumberField(
         verbose_name='Телефон',
-        null=False,
     )
     products = models.ManyToManyField(
         Product,
