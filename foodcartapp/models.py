@@ -153,6 +153,7 @@ class Order(models.Model):
     PAYMENT_CHOICES = [
     ('CASH', 'Наличными'),
     ('CARD', 'Электронно'),
+    ('NS', 'Не указано'),
     ]
     restaurant = models.ForeignKey(
         Restaurant,
@@ -171,7 +172,7 @@ class Order(models.Model):
         verbose_name='Способ оплаты',
         max_length=4,
         choices=PAYMENT_CHOICES ,
-        default="CASH",
+        default="NS",
     )
     firstname = models.CharField(
         verbose_name='Имя',
