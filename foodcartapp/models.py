@@ -105,7 +105,8 @@ class RestaurantMenuItemQuerySet(models.QuerySet):
             menu_items__product_id__in=product_ids,
             menu_items__availability=True
         ).distinct()
-        restaurants = restaurants.filter(menu_items__product_id__in=product_ids)
+        restaurants = restaurants.filter(
+            menu_items__product_id__in=product_ids)
         return restaurants.distinct()
 
 
@@ -156,7 +157,8 @@ class Order(models.Model):
         related_name='orders',
         verbose_name='ресторан',
         on_delete=models.CASCADE,
-        null=True, blank=True
+        null=True,
+        blank=True
     )
     status = models.CharField(
         verbose_name='Статус заказа',
@@ -220,20 +222,27 @@ class Order(models.Model):
 
 
 class OrderItem(models.Model):
-    order = models.ForeignKey(Order,
-                              related_name='items',
-                              verbose_name='заказ',
-                              on_delete=models.CASCADE
-                              )
-    product = models.ForeignKey(Product,
-                                related_name='items',
-                                verbose_name='продукт',
-                                on_delete=models.CASCADE
-                                )
-    quantity = models.IntegerField(default=1)
+    order = models.ForeignKey(
+        Order,
+        related_name='items',
+        verbose_name='заказ',
+        on_delete=models.CASCADE,
+        )
+    product = models.ForeignKey(
+        Product,
+        related_name='items',
+        verbose_name='продукт',
+        on_delete=models.CASCADE,
+        )
+    quantity = models.IntegerField(
+        default=1,
+        verbose_name='количество',
+        validators=[MinValueValidator(1)]
+        )
     price = models.DecimalField(
         max_digits=8,
         decimal_places=2,
+        verbose_name='цена',
         validators=[MinValueValidator(0)]
     )
 
