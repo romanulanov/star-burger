@@ -58,13 +58,16 @@ pip install -r requirements.txt
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 ```
-
 Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
 
 ```sh
 python manage.py migrate
 ```
 
+Для подключения системы логирования получите токен [на сайте](https://rollbar.com/). Когда речь зайдёт о SDK, выбирайте Django и получите инструкции по интеграции. Cохраните токен в файле `.env`:
+```sh
+ROLLBAR_TOKEN=1648f91648f91648f9
+```
 Запустите сервер:
 
 ```sh
