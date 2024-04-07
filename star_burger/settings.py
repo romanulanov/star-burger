@@ -17,6 +17,7 @@ DEBUG = env.bool('DEBUG', False)
 YANDEX_KEY = os.environ['YANDEX_KEY']
 ROLLBAR_TOKEN = os.environ['ROLLBAR_TOKEN']
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
+DATABASE_URL = os.environ['DATABASE_URL']
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -92,12 +93,20 @@ WSGI_APPLICATION = 'star_burger.wsgi.application'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 MEDIA_URL = '/media/'
 
-DATABASES = {
-    'default': dj_database_url.config(
-        default='sqlite:////{0}'.format(os.path.join(BASE_DIR, 'db.sqlite3'))
-    )
-}
 
+DATABASES = {
+            'default': dj_database_url.config(
+                        default=DATABASE_URL
+                            )
+                            }
+'''
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+    }
+}
+'''
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',

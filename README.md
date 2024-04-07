@@ -58,7 +58,11 @@ pip install -r requirements.txt
 ```sh
 SECRET_KEY=django-insecure-0if40nf4nf93n4
 ```
-Создайте файл базы данных SQLite и отмигрируйте её следующей командой:
+Для использования базы данных Postgresql задайте `DATABASE_URL` вида:
+```sh
+DATABASE_URL=postgres://user:password@localhost:5432/dbname
+```
+Отмигрируйте БД следующей командой:
 
 ```sh
 python manage.py migrate
