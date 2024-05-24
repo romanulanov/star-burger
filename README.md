@@ -1,5 +1,6 @@
 # Сайт доставки еды Star Burger
 
+[Сайт](https://romanulanov.ru)
 Это сайт сети ресторанов Star Burger. Здесь можно заказать превосходные бургеры с доставкой на дом.
 
 ![скриншот сайта](https://dvmn.org/filer/canonical/1594651635/686/)
@@ -155,10 +156,16 @@ Parcel будет следить за файлами в каталоге `bundle
 - `SECRET_KEY` — секретный ключ проекта. Он отвечает за шифрование на сайте. Например, им зашифрованы все пароли на вашем сайте.
 - `ALLOWED_HOSTS` — [см. документацию Django](https://docs.djangoproject.com/en/3.1/ref/settings/#allowed-hosts)
 - `YANDEX_APIKEY` - токен подключения к системе Yandex для вычисления координат
+
+
+## Деплой проекта
+
+Для деплоя проекта перейдите в папку с проектом 
+./deploy_star_burger.sh
+
 ## Цели проекта
 
 Код написан в учебных целях — это урок в курсе по Python и веб-разработке на сайте [Devman](https://dvmn.org). За основу был взят код проекта [FoodCart](https://github.com/Saibharath79/FoodCart).
 
-Где используется репозиторий:
 
 - Второй и третий урок [учебного курса Django](https://dvmn.org/modules/django/)
