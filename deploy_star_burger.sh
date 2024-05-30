@@ -2,11 +2,7 @@
 
 set -e
 
-<<<<<<< Updated upstream
 source .env
-=======
-source .env 
->>>>>>> Stashed changes
 
 APP_PATH="/opt/star-burger"
 
@@ -21,11 +17,7 @@ echo "Устанавливаю npm зависимости..."
 npm ci --dev
 echo "NPM зависимости успешно установлены."
 
-<<<<<<< Updated upstream
 python3 -m venv venv
-=======
-python3 -m venv venv 
->>>>>>> Stashed changes
 echo "Создал окружение"
 
 echo "Активирую виртуальное окружение Python..."
@@ -53,35 +45,19 @@ echo "Перезапустил сервисы Systemd"
 commit=$(git rev-parse HEAD)
 
 curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" \
-<<<<<<< Updated upstream
              -H "accept: application/json" \
                   -H "content-type: application/json" \
                        -X POST "https://api.rollbar.com/api/1/deploy" \
                                                    -d '{
-=======
-	     -H "accept: application/json" \
-	          -H "content-type: application/json" \
-		       -X POST "https://api.rollbar.com/api/1/deploy" \
-		            -d '{
->>>>>>> Stashed changes
   "environment": "production",
     "revision": "'"$commit"'",
       "rollbar_username": "'$(whoami)'",
         "local_username": "'$(whoami)'",
-<<<<<<< Updated upstream
           "comment": "deploy",
             "status": "succeeded"
-=======
-	  "comment": "deploy",
-	    "status": "succeeded"
->>>>>>> Stashed changes
     }'
 echo "Отправил информацию в роллбар"
 deactivate
 echo "Деактивировал окружение"
 
-<<<<<<< Updated upstream
 echo "Деплой успешно завершён!"
-=======
-echo "Деплой успешно завершён!"
->>>>>>> Stashed changes
