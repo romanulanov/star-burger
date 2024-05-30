@@ -15,13 +15,9 @@ DATABASE_URL = os.environ['DATABASE_URL']
 SECRET_KEY = env('SECRET_KEY')
 DEBUG = env.bool('DEBUG', False)
 YANDEX_KEY = os.environ['YANDEX_KEY']
-<<<<<<< Updated upstream
 ROLLBAR_TOKEN = env('ROLLBAR_TOKEN', default=None)
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', ['127.0.0.1', 'localhost'])
 DATABASE_URL = os.environ['DATABASE_URL']
-=======
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS')
->>>>>>> Stashed changes
 
 INSTALLED_APPS = [
     'foodcartapp.apps.FoodcartappConfig',
@@ -47,7 +43,6 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
-<<<<<<< Updated upstream
     'rollbar.contrib.django.middleware.RollbarNotifierMiddlewareExcluding404',
 ]
 
@@ -57,19 +52,6 @@ ROLLBAR = {
     'code_version': '1.0',
     'root': BASE_DIR, 
 }
-=======
-    'rollbar.contrib.django.middleware.RollbarNotifierMiddleware',
-
-]
-
-ROLLBAR = {
-            'access_token': ROLLBAR_TOKEN,
-                'environment': 'development' if DEBUG else 'production',
-                    'code_version': '1.0',
-                        'root': BASE_DIR, 
-                        }
-
->>>>>>> Stashed changes
 
 ROOT_URLCONF = 'star_burger.urls'
 
