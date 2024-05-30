@@ -6,6 +6,7 @@ class OrderItemSerializer(ModelSerializer):
     class Meta:
         model = OrderItem
         fields = ['product', 'quantity']
+        
 
 
 class OrderSerializer(ModelSerializer):
@@ -18,9 +19,15 @@ class OrderSerializer(ModelSerializer):
         products = validated_data.pop('products')  
         order = Order.objects.create(**validated_data)  
         for product in products:
+<<<<<<< Updated upstream
             OrderItem.objects.create(order=order, 
                                      price=product['product'].price,
                                      **product,
                                      )
+=======
+            OrderItem.objects.create(order=order,
+                    price=product['product'].price,
+                    **product)
+>>>>>>> Stashed changes
 
         return order
