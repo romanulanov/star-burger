@@ -2,6 +2,8 @@
 
 set -e
 
+source .env
+
 APP_PATH="/opt/star-burger"
 
 # Переходим в директорию приложения
@@ -15,12 +17,9 @@ echo "Устанавливаю npm зависимости..."
 npm ci --dev
 echo "NPM зависимости успешно установлены."
 
-echo "Собираю фронтенд..."
-./node_modules/.bin/parcel watch bundles-src/index.js --dist-dir bundles --public-url="./"
-echo "Фронтенд успешно собран."
-
 python3 -m venv venv
 echo "Создал окружение"
+
 echo "Активирую виртуальное окружение Python..."
 source venv/bin/activate
 
@@ -30,7 +29,7 @@ pip3 install -r requirements.txt
 echo "Python зависимости успешно установлены."
 
 echo "Пересобираю статические файлы Django..."
-python3 manage.py collectstatic
+python3 manage.py collectstatic --noinput
 echo "Пересобрал статику Django"
 
 echo "Применяю миграции Django..."
@@ -43,6 +42,21 @@ echo "Перезагружаю Nginx..."
 systemctl reload nginx
 echo "Перезапустил сервисы Systemd"
 
+commit=$(git rev-parse HEAD)
+
+curl -H "X-Rollbar-Access-Token: $ROLLBAR_TOKEN" \
+             -H "accept: application/json" \
+                  -H "content-type: application/json" \
+                       -X POST "https://api.rollbar.com/api/1/deploy" \
+                                                   -d '{
+  "environment": "production",
+    "revision": "'"$commit"'",
+      "rollbar_username": "'$(whoami)'",
+        "local_username": "'$(whoami)'",
+          "comment": "deploy",
+            "status": "succeeded"
+    }'
+echo "Отправил информацию в роллбар"
 deactivate
 echo "Деактивировал окружение"
 
