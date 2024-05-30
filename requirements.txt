@@ -9,9 +9,5 @@ geopy==2.4.1
 djangorestframework==3.14.0
 gunicorn==21.2.0
 rollbar==1.0.0
-<<<<<<< Updated upstream
 psycopg2==2.9.9
 django-extensions==3.2.3
-=======
-django-extensions==3.2.3
->>>>>>> Stashed changes
