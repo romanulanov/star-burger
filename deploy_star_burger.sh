@@ -17,6 +17,19 @@ echo "Устанавливаю npm зависимости..."
 npm ci --dev
 echo "NPM зависимости успешно установлены."
 
+echo "Отключаем фоновую сборку фронтенда"
+
+parcel_processes=$(ps aux | grep 'parcel' | grep -v 'grep' | awk '{print $2}')
+if [ -n "$parcel_processes" ]; then
+	  echo "Завершаем процессы Parcel: $parcel_processes"
+	    kill -9 $parcel_processes
+    else
+	      echo "Процессы Parcel не найдены"
+fi
+
+echo "Собираем фронтенд"
+./node_modules/.bin/parcel build bundles-src/index.js --dist-dir bundles --public-url="./"
+
 python3 -m venv venv
 echo "Создал окружение"
 
