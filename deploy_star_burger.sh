@@ -21,10 +21,10 @@ echo "Отключаем фоновую сборку фронтенда"
 
 parcel_processes=$(ps aux | grep 'parcel' | grep -v 'grep' | awk '{print $2}')
 if [ -n "$parcel_processes" ]; then
-	  echo "Завершаем процессы Parcel: $parcel_processes"
-	    kill -9 $parcel_processes
+          echo "Завершаем процессы Parcel: $parcel_processes"
+            kill -9 $parcel_processes
     else
-	      echo "Процессы Parcel не найдены"
+              echo "Процессы Parcel не найдены"
 fi
 
 echo "Собираем фронтенд"
